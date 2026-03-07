@@ -13,6 +13,7 @@ COPY schedule.yaml ./
 RUN npm run build
 RUN npm prune --production
 
-EXPOSE 3000
+# Railway sets PORT dynamically; default to 3000 for local dev
+EXPOSE ${PORT:-3000}
 
 CMD ["node", "dist/server.js"]
