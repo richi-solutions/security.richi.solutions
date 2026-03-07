@@ -15,16 +15,37 @@ export class GitHubAdapter implements GitHubPort {
     const traceId = uuidv4();
     try {
       const repos: RepoListItem[] = [];
-      for await (const response of this.octokit.paginate.iterator(
-        this.octokit.repos.listForOrg,
-        { org, per_page: 100, type: 'all' },
-      )) {
-        for (const repo of response.data) {
-          repos.push({
-            name: repo.name,
-            defaultBranch: repo.default_branch ?? 'main',
-            archived: repo.archived ?? false,
-          });
+      // Try org endpoint first, fall back to user endpoint
+      try {
+        for await (const response of this.octokit.paginate.iterator(
+          this.octokit.repos.listForOrg,
+          { org, per_page: 100, type: 'all' },
+        )) {
+          for (const repo of response.data) {
+            repos.push({
+              name: repo.name,
+              defaultBranch: repo.default_branch ?? 'main',
+              archived: repo.archived ?? false,
+            });
+          }
+        }
+      } catch (orgErr: unknown) {
+        if (orgErr instanceof Error && 'status' in orgErr && (orgErr as { status: number }).status === 404) {
+          logger.info('github_org_not_found_trying_user', { org, traceId });
+          for await (const response of this.octokit.paginate.iterator(
+            this.octokit.repos.listForAuthenticatedUser,
+            { per_page: 100, type: 'owner' },
+          )) {
+            for (const repo of response.data) {
+              repos.push({
+                name: repo.name,
+                defaultBranch: repo.default_branch ?? 'main',
+                archived: repo.archived ?? false,
+              });
+            }
+          }
+        } else {
+          throw orgErr;
         }
       }
       logger.info('github_repos_listed', { org, count: repos.length, traceId });
