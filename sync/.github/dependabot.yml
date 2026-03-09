@@ -1,5 +1,5 @@
 # Dependabot configuration
-# Distributed via .claude/security/ to .github/dependabot.yml
+# Distributed via .claude/sync/ to .github/dependabot.yml
 
 version: 2
 updates:

@@ -1,5 +1,5 @@
 # Pre-commit hooks for security
-# Distributed via .claude/security/ to all richi-solutions projects
+# Distributed via .claude/sync/ to all richi-solutions projects
 #
 # Setup: pip install pre-commit && pre-commit install
 

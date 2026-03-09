@@ -120,18 +120,16 @@ git push -u origin main
 
 If the repo doesn't exist yet, instruct the user to create it on GitHub first.
 
-## Step 9: Sync Security Config
+## Step 9: Sync Config
 
-If `.claude/security/` exists after subtree add:
+Copy all standardized configs from `.claude/sync/` to their target locations:
 
 ```bash
-cp .claude/security/.gitleaks.toml .gitleaks.toml 2>/dev/null
-cp .claude/security/.pre-commit-config.yaml .pre-commit-config.yaml 2>/dev/null
-mkdir -p .github .github/workflows
-cp .claude/security/dependabot.yml .github/dependabot.yml 2>/dev/null
-cp .claude/security/workflows/security.yml .github/workflows/security.yml 2>/dev/null
-git add .
-git commit -m "chore: sync security config from .claude/security"
+if [ -d ".claude/sync" ]; then
+  cp -r .claude/sync/. .
+  git add .
+  git commit -m "chore: sync config from .claude/sync"
+fi
 ```
 
 ## Step 10: Summary
@@ -157,7 +155,7 @@ src/
 
 ### .claude
 - Subtree from richi-solutions/.claude
-- All agents, skills, rules, and security config included
+- All agents, skills, rules, and synced config included
 
 ### Next Steps
 1. Fill in .env with Supabase credentials
