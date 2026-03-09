@@ -1,25 +1,25 @@
-# Automatic security config distribution to all agent repos
+# Automatic config distribution to all agent repos
 #
 # Discovers all *.richi.solutions repos and pushes the latest
-# security workflow, gitleaks config, and dependabot config.
+# standardized configs from .claude/sync/ (mirror layout).
 #
 # Requires:
 #   - ORG_PAT secret (GitHub PAT with repo scope)
 
-name: Sync Security Config
+name: Sync Config
 
 on:
   push:
     branches: [main]
     paths:
-      - '.claude/security/**'
+      - '.claude/sync/**'
   schedule:
     - cron: "0 5 * * *" # Daily 05:00 UTC — catches new repos
   workflow_dispatch:
 
 jobs:
   sync:
-    name: Distribute Security Config
+    name: Distribute Config
     runs-on: ubuntu-latest
 
     steps:
@@ -61,17 +61,14 @@ jobs:
           ORG_NAME: ${{ github.repository_owner }}
           REPOS: ${{ steps.discover.outputs.repos }}
         run: |
-          REPO_COUNT=$(echo "$REPOS" | jq length)
+          SYNC_DIR="$GITHUB_WORKSPACE/orchestrator/.claude/sync"
 
-          for src in \
-            "$GITHUB_WORKSPACE/orchestrator/.claude/security/workflows/security.yml" \
-            "$GITHUB_WORKSPACE/orchestrator/.claude/security/.gitleaks.toml" \
-            "$GITHUB_WORKSPACE/orchestrator/.claude/security/dependabot.yml"; do
-            if [ ! -f "$src" ]; then
-              echo "::error::Source file missing: $src"
-              exit 1
-            fi
-          done
+          if [ ! -d "$SYNC_DIR" ]; then
+            echo "::error::Sync directory missing: $SYNC_DIR"
+            exit 1
+          fi
+
+          REPO_COUNT=$(echo "$REPOS" | jq length)
 
           SUCCESS=0
           FAILED=0
@@ -103,14 +100,8 @@ jobs:
               continue
             }
 
-            mkdir -p .github/workflows
-
-            cp "$GITHUB_WORKSPACE/orchestrator/.claude/security/workflows/security.yml" \
-               ".github/workflows/security.yml"
-            cp "$GITHUB_WORKSPACE/orchestrator/.claude/security/.gitleaks.toml" \
-               ".gitleaks.toml"
-            cp "$GITHUB_WORKSPACE/orchestrator/.claude/security/dependabot.yml" \
-               ".github/dependabot.yml"
+            # Mirror layout: cp -r copies sync/ structure directly
+            cp -r "$SYNC_DIR/." .
 
             if [ -z "$(git status --porcelain)" ]; then
               echo "No changes needed for $REPO_NAME"
@@ -124,12 +115,12 @@ jobs:
 
             git diff --stat
 
-            git config user.name "richi-security-bot"
-            git config user.email "security@richi-solutions.com"
-            git add .github/workflows/security.yml .gitleaks.toml .github/dependabot.yml
-            git commit -m "chore: sync security config from orchestrator" \
-              -m "Updated security workflow, gitleaks config, and dependabot config from richi-solutions/orchestrator.richi.solutions template." \
-              -m "Automated by sync-security.yml"
+            git config user.name "richi-config-bot"
+            git config user.email "config@richi-solutions.com"
+            git add -A
+            git commit -m "chore: sync config from orchestrator" \
+              -m "Distributed standardized configs from .claude/sync/ mirror layout." \
+              -m "Automated by sync-config.yml"
 
             if git push origin "$DEFAULT_BRANCH"; then
               echo "Successfully synced $REPO_NAME"
@@ -146,7 +137,7 @@ jobs:
             rm -rf "$WORK_DIR"
           done
 
-          echo "## Security Config Sync Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Config Sync Results" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Metric | Count |" >> "$GITHUB_STEP_SUMMARY"
           echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
