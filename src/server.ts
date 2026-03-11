@@ -45,8 +45,15 @@ const provisionHandler = new ProvisionHandler(discovery);
 // Instantiate executor
 const executor = new Executor(sweepHandler, aggregateHandler, chainHandler, provisionHandler);
 
-// Job execution pipeline
-async function executeJob(jobName: string, jobDef: import('./contracts/v1/schedule.schema').JobDefinition): Promise<void> {
+// Job execution result for trigger endpoint reporting
+export interface JobExecutionResult {
+  status: string;
+  error?: string;
+}
+
+// Job execution pipeline — returns status so trigger endpoint can report it
+async function executeJob(jobName: string, jobDef: import('./contracts/v1/schedule.schema').JobDefinition): Promise<JobExecutionResult> {
+  const startedAt = new Date().toISOString();
   const result = await executor.execute(jobName, jobDef);
 
   if (result.ok) {
@@ -86,8 +93,27 @@ async function executeJob(jobName: string, jobDef: import('./contracts/v1/schedu
     } else {
       logger.error('job_store_failed', new Error(storeResult.error.message), { jobName });
     }
+    return { status: result.data.status };
   } else {
+    // Persist failure so it's visible in the database, not just server logs
+    const completedAt = new Date().toISOString();
+    const failedJobResult = {
+      jobName,
+      jobType: jobDef.type,
+      startedAt,
+      completedAt,
+      durationMs: new Date(completedAt).getTime() - new Date(startedAt).getTime(),
+      status: 'failure' as const,
+      targets: [] as string[],
+      results: [{ target: 'executor', status: 'failure' as const, error: result.error.message }],
+      summary: `${result.error.code}: ${result.error.message}`,
+    };
+    const storeResult = await store.saveJobRun(failedJobResult);
+    if (!storeResult.ok) {
+      logger.error('job_failure_store_failed', new Error(storeResult.error.message), { jobName });
+    }
     logger.error('job_execution_failed', new Error(result.error.message), { jobName, traceId: result.traceId });
+    return { status: 'failure', error: result.error.message };
   }
 }
 

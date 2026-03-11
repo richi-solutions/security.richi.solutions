@@ -2,12 +2,17 @@ import cron from 'node-cron';
 import { ScheduleConfig, JobDefinition } from '../contracts/v1/schedule.schema';
 import { logger } from '../lib/logger';
 
+export interface JobTriggerResult {
+  status: string;
+  error?: string;
+}
+
 export class Scheduler {
   private tasks: Map<string, cron.ScheduledTask> = new Map();
 
   constructor(
     private config: ScheduleConfig,
-    private onJobTrigger: (jobName: string, jobDef: JobDefinition) => Promise<void>,
+    private onJobTrigger: (jobName: string, jobDef: JobDefinition) => Promise<JobTriggerResult>,
   ) {}
 
   start(): void {
@@ -40,15 +45,14 @@ export class Scheduler {
     logger.info('scheduler_stopped');
   }
 
-  triggerManually(jobName: string): boolean {
+  // Returns null if job not found, otherwise a Promise that resolves with the job result
+  triggerManually(jobName: string): { jobDef: JobDefinition; promise: Promise<JobTriggerResult> } | null {
     const def = this.config.jobs[jobName];
-    if (!def) return false;
+    if (!def) return null;
 
     logger.info('job_manual_trigger', { jobName });
-    this.onJobTrigger(jobName, def).catch((err) => {
-      logger.error('manual_trigger_failed', err, { jobName });
-    });
-    return true;
+    const promise = this.onJobTrigger(jobName, def);
+    return { jobDef: def, promise };
   }
 
   getJobNames(): string[] {

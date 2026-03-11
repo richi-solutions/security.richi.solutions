@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Scheduler } from './scheduler';
 
 describe('Scheduler', () => {
-  const mockTrigger = vi.fn().mockResolvedValue(undefined);
+  const mockTrigger = vi.fn().mockResolvedValue({ status: 'success' });
   let scheduler: Scheduler;
 
   beforeEach(() => {
@@ -28,13 +28,14 @@ describe('Scheduler', () => {
 
   it('triggers manually for existing job', () => {
     const result = scheduler.triggerManually('job-a');
-    expect(result).toBe(true);
+    expect(result).not.toBeNull();
+    expect(result!.promise).toBeInstanceOf(Promise);
     expect(mockTrigger).toHaveBeenCalledWith('job-a', expect.objectContaining({ type: 'sweep' }));
   });
 
-  it('returns false for non-existent job', () => {
+  it('returns null for non-existent job', () => {
     const result = scheduler.triggerManually('non-existent');
-    expect(result).toBe(false);
+    expect(result).toBeNull();
     expect(mockTrigger).not.toHaveBeenCalled();
   });
 
