@@ -20,7 +20,7 @@ HOME_CLAUDE="$HOME/.claude"
 SHARED_DIRS="agents rules ref skills sync"
 
 # Project-specific files to preserve (never overwrite)
-# CLAUDE.md, CLAUDE.local.md, settings.local.json, .mcp.json, reviews/
+# CLAUDE.local.md, settings.local.json, .mcp.json, reviews/
 
 if [ ! -d "$SOURCE" ]; then
   echo "Error: Orchestrator .claude/ not found at $SOURCE"
@@ -43,9 +43,12 @@ if [ -d "$TEMPLATE_DIR" ]; then
     fi
   done
 
-  # Sync settings.json
+  # Sync settings.json and CLAUDE.md
   if [ -f "$SOURCE/settings.json" ]; then
     cp "$SOURCE/settings.json" "$TEMPLATE_DIR/settings.json"
+  fi
+  if [ -f "$SOURCE/CLAUDE.md" ]; then
+    cp "$SOURCE/CLAUDE.md" "$TEMPLATE_DIR/CLAUDE.md"
   fi
 
   # Remove old security/ directory
@@ -92,9 +95,12 @@ for repo_dir in "$PARENT_DIR"/*.richi.solutions; do
     fi
   done
 
-  # Sync settings.json
+  # Sync settings.json and CLAUDE.md
   if [ -f "$SOURCE/settings.json" ]; then
     cp "$SOURCE/settings.json" "$repo_dir/.claude/settings.json"
+  fi
+  if [ -f "$SOURCE/CLAUDE.md" ]; then
+    cp "$SOURCE/CLAUDE.md" "$repo_dir/.claude/CLAUDE.md"
   fi
 
   # Remove old security/ directory if it still exists

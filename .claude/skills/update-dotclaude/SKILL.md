@@ -39,9 +39,11 @@ for dir in $SHARED_DIRS; do
   done
 done
 
-# Also copy settings.json
+# Also copy settings.json and CLAUDE.md
 gh api "repos/${OWNER}/${SOURCE_REPO}/contents/.claude/settings.json?ref=${BRANCH}" \
   --jq '.download_url' | xargs curl -sL -o .claude/settings.json
+gh api "repos/${OWNER}/${SOURCE_REPO}/contents/.claude/CLAUDE.md?ref=${BRANCH}" \
+  --jq '.download_url' | xargs curl -sL -o .claude/CLAUDE.md
 ```
 
 After downloading, sync config files to their required locations:
@@ -57,6 +59,7 @@ git push
 
 ## What gets synced (shared)
 
+- `.claude/CLAUDE.md` — universal project instructions
 - `.claude/agents/` — agent definitions
 - `.claude/rules/` — framework rules (Consumer-Pro KB, Runtime Contract)
 - `.claude/ref/` — reference docs (loaded on demand)
@@ -66,7 +69,6 @@ git push
 
 ## What stays local (project-specific)
 
-- `.claude/CLAUDE.md` — project instructions
 - `.claude/CLAUDE.local.md` — local overrides
 - `.claude/settings.local.json` — local settings
 - `.claude/.mcp.json` — MCP server config

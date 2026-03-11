@@ -104,7 +104,6 @@ jobs:
             # Copy shared directories from orchestrator
             # (rsync deletes removed files, respects exclusions)
             rsync -a --delete \
-              --exclude='CLAUDE.md' \
               --exclude='CLAUDE.local.md' \
               --exclude='settings.local.json' \
               --exclude='.mcp.json' \
