@@ -87,8 +87,10 @@ export class ClaudeAdapter implements ClaudePort {
           continue;
         }
 
-        logger.error('claude_complete_failed', err, { traceId, model, attempt });
-        return failure('CLAUDE_ERROR', `Claude API call failed after ${attempt} attempts`, traceId);
+        const statusCode = err instanceof Anthropic.APIError ? err.status : undefined;
+        const apiMessage = err instanceof Error ? err.message : String(err);
+        logger.error('claude_complete_failed', err, { traceId, model, attempt, statusCode });
+        return failure('CLAUDE_ERROR', `Claude API failed (${statusCode ?? 'unknown'}): ${apiMessage}`, traceId);
       }
     }
 
