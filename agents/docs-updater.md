@@ -90,6 +90,7 @@ If `CONTRIBUTING.md` does not exist, create a concise one covering:
 - All comments and documentation in English only
 - Do NOT generate API documentation (separate concern)
 - Do NOT modify any application logic
+- Do NOT modify any files under `.claude/` — managed by sync-dotclaude, changes cause merge conflicts
 - Do NOT add comments to test files
 - Be pragmatic — small utilities don't need the same docs as full applications
 - Verify documentation accuracy against actual code before writing

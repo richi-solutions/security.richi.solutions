@@ -109,6 +109,34 @@ quality checklist defined in that guide before commit.
 
 ---
 
+## Automated Workflows & Merge Conflict Prevention
+
+The `.claude/` directory is managed centrally by the orchestrator and distributed via automated workflows.
+
+### Workflow Schedule
+
+| Workflow | Schedule | Purpose |
+|----------|----------|---------|
+| `sync-dotclaude.yml` | Daily 05:00 UTC | Distributes `.claude/` from orchestrator to all repos |
+| `orchestrate-docs.yml` | Wednesday 08:00 UTC | Runs documentation agent across all repos |
+
+Workflows are staggered so docs always runs **after** sync has completed (3h buffer).
+
+### Off-Limits for Agents and Manual Edits
+
+| Directory | Managed By | Rule |
+|-----------|-----------|------|
+| `.claude/` | `sync-dotclaude.yml` | **Never modify in target repos.** Changes get overwritten on next sync and cause merge conflicts. All changes go through the orchestrator. |
+
+### Merge Conflict Prevention Rules
+
+1. **PRs auto-merge immediately** — `orchestrate-docs.yml` squash-merges its own PRs to minimize branch lifetime
+2. **Workflows are time-staggered** — sync runs daily at 05:00, docs runs Wednesday at 08:00 (after sync)
+3. **`.claude/` is excluded from docs PRs** — git add ignores `.claude/`, and the agent prompt forbids modifying it
+4. **Use `git pull --rebase`** — locally, always rebase instead of merge to keep history linear
+
+---
+
 ## Deployment Gate
 
 Before any production deployment, verify `rules/runtime-contract.md` checklist:
