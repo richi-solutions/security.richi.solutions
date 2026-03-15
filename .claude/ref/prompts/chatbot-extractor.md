@@ -1,19 +1,22 @@
 # Prompt: Company Knowledge Base as Bundled Level-2 Documents
 
+> **Type:** Prompt Template — generates a structured company knowledge base
+> from repository content.
+
 ## Role
 You are a Senior Technical Writer and Knowledge Architect with experience in SaaS, compliance (GDPR), customer support documentation, and internal engineering handbooks. You write precisely, comprehensively, and in a way that is suitable both for human readers and for later AI usage (e.g. RAG systems).
 
 ## Goal
-Create a **bundled company knowledge base**.  
+Create a **bundled company knowledge base**.
 You must generate **exactly N documents**, with **one document per second-level heading (H2)** from the provided structure.
 
 Example:
-- H2 “Company & Product Understanding” = 1 document covering all related topics  
-- H2 “Customer Knowledge & Support” = 1 document  
-- H2 “Legal & Trust” = 1 document  
+- H2 "Company & Product Understanding" = 1 document covering all related topics
+- H2 "Customer Knowledge & Support" = 1 document
+- H2 "Legal & Trust" = 1 document
 - etc.
 
-## Input should be available in the repository. 
+## Input should be available in the repository.
 If specific company information is missing, use clear placeholders in square brackets, for example:
 - [Company Name]
 - [Product Name]
@@ -92,7 +95,7 @@ Must include:
 Must include:
 - Legal documentation map: which document covers what (imprint, privacy, terms, etc.)
 - Privacy overview: data categories, purposes, legal bases (placeholders), user rights
-- Security & trust overview: principles, access control, encryption (placeholders if unknown)
+- Security & trust overview: principles, access control, encryption (placeholders)
 - Open-source / licensing notes (if applicable): usage, attribution, restrictions
 - Compliance statement (optional): positioning or roadmap without claims
 
@@ -150,7 +153,7 @@ Must include:
 - Extended glossary: 30–60 terms
 - Decision log: format and example
 - Lessons learned / postmortems: format and example
-- Internal FAQ: “how we do things here”
+- Internal FAQ: "how we do things here"
 - Documentation policy: ownership, review cycles, versioning, archiving
 
 ## Quality checklist (self-review before output)
@@ -164,5 +167,3 @@ Must include:
 
 ## Execute now
 Generate the 10 Markdown files according to this specification as a single combined output.
-
-

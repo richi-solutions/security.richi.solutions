@@ -75,7 +75,7 @@ This document describes the architecture for generating dynamic cinematic conten
 
 ### Image Generation: Reference Frame
 
-| Criteria | `gemini-2.5-flash-image` | `gemini-3-pro-image-preview` ✅ |
+| Criteria | `gemini-2.5-flash-image` | `gemini-3-pro-image-preview` |
 |----------|--------------------------|----------------------------------|
 | Aspect ratio control | Poor (always ~1:1) | Good (respects prompt dimensions) |
 | Quality | Medium | High |
@@ -366,7 +366,7 @@ CREATE TABLE public.site_config (
 );
 
 -- Store active hero video
-INSERT INTO site_config (key, value) 
+INSERT INTO site_config (key, value)
 VALUES ('hero_video_url', 'https://...');
 ```
 
@@ -492,13 +492,13 @@ A universal image generation endpoint that selects aspect ratio, dimensions, and
 
 | Context | Aspect Ratio | Dimensions | Bucket | Folder |
 |---------|-------------|------------|--------|--------|
-| `avatar` | 1:1 | 512×512 | `avatars` | — |
-| `banner` | 3:1 | 1500×500 | `avatars` | — |
-| `logo` | 1:1 | 512×512 | `platform-images` | `logos/` |
-| `cover` | 16:9 | 1280×720 | `platform-images` | `covers/` |
-| `post` | 4:3 | 1200×900 | `platform-images` | `posts/` |
-| `thumbnail` | 16:9 | 1280×720 | `platform-images` | `thumbnails/` |
-| `hero-frame` | 16:9 | 1280×720 | `assets` | `frames/` |
+| `avatar` | 1:1 | 512x512 | `avatars` | — |
+| `banner` | 3:1 | 1500x500 | `avatars` | — |
+| `logo` | 1:1 | 512x512 | `platform-images` | `logos/` |
+| `cover` | 16:9 | 1280x720 | `platform-images` | `covers/` |
+| `post` | 4:3 | 1200x900 | `platform-images` | `posts/` |
+| `thumbnail` | 16:9 | 1280x720 | `platform-images` | `thumbnails/` |
+| `hero-frame` | 16:9 | 1280x720 | `assets` | `frames/` |
 
 ### API Contract
 

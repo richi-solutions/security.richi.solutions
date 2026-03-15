@@ -1559,13 +1559,16 @@ All contracts are stored in `.claude/` and organized by layer:
     runtime-contract.md               ← DEPLOYMENT GATE / RUNTIME AUTHORITY
 
   ref/
-    generation/                       ← Generation contracts
+    generation/                       ← UI/UX standards & integration contracts
+      ui-ux-guide.md
+      footer-guide.md
       legal-pages.md
       email-implementation.md
-      footer-guide.md
-      ui-ux-guide.md
-      frontend-architecture.md
+      monetization.md
+    backend/                          ← Backend API & pipeline specs
       cinematic-pipeline.md
+    prompts/                          ← Agent prompt templates (not standards)
+      cinematic-redesign-prompt.md
       chatbot-extractor.md
     growth/                           ← Growth contracts
       analytics.md
@@ -1578,6 +1581,9 @@ All contracts are stored in `.claude/` and organized by layer:
 ```
 
 Layer meaning must be preserved. File naming may vary.
+Prompt templates in `prompts/` are NOT standing standards — they are
+on-demand prompts for specific tasks and do not override rules in
+`generation/` or `rules/`.
 
 ### 22.2 Authority Hierarchy (Highest → Lowest)
 
@@ -1585,7 +1591,9 @@ Layer meaning must be preserved. File naming may vary.
 2. `runtime-contract.md` (**RUNTIME AUTHORITY / DEPLOYMENT GATE**)
 3. Core execution contracts (`ideation-to-product.md`, `lifecycle.md`)
 4. Generation contracts (`ref/generation/*`)
-5. Growth contracts (`ref/growth/*`)
+5. Backend contracts (`ref/backend/*`)
+6. Growth contracts (`ref/growth/*`)
+7. Prompt templates (`ref/prompts/*`) — lowest authority, never override standards
 
 #### Rules
 
