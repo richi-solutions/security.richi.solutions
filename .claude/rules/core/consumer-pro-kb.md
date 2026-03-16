@@ -718,7 +718,7 @@ Store schemas in `/events/v1/*.json`.
 | Flags | Env/in-app | LaunchDarkly / GrowthBook | ✅ Flags API |
 | CI/CD | Lint + Smoke | Full pipeline + Canary | ✅ Pipeline spec |
 | Docs | README + 1 ADR | ADR + Runbooks | ✅ Format |
-| **Multi-Platform** | Web + Edge | Web + Mobile + Edge + Workers | ✅ Contracts |
+| **Multi-Platform** | Web + Mobile (React Native) + Edge | Web + Mobile + Edge + Workers | ✅ Contracts |
 | **i18n** | Basic setup | Full localization pipeline | ✅ Key structure |
 
 > Migration = swapping implementations, not rewriting code.
@@ -854,6 +854,16 @@ const retryConfig = {
 
 ## 16 — Multi-Platform Architecture
 
+### Strategy: Dual-Repo with Shared Contracts
+
+Each platform surface has its own repository. Shared code (contracts, types, error envelope) is distributed from the orchestrator — the same mechanism used for `.claude/` distribution.
+
+**Why dual-repo (not monorepo):**
+- Deployment independence — web and mobile deploy on different schedules
+- Standard tooling — Vercel and Expo EAS work without monorepo configuration
+- Matches existing workflow — same pattern as `.claude/` sync via orchestrator
+- Smaller PRs, focused CI, simpler onboarding
+
 ### Repository Strategy
 
 ```
@@ -871,33 +881,57 @@ const retryConfig = {
        ▼                ▼                ▼
 ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
 │  Web App    │  │ Mobile App  │  │ Admin App   │
-│  (React)    │  │ (Flutter)   │  │ (React)     │
-│  Vercel     │  │             │  │  Vercel     │
-│ Repository: │  │ Repository: │  │ Repository: │
-│ project-web │  │ project-app │  │ project-adm │
+│  (React)    │  │(React Native│  │ (React)     │
+│  Vercel     │  │  + Expo)    │  │  Vercel     │
+│ Repository: │  │ EAS Build   │  │ Repository: │
+│ project-web │  │ Repository: │  │ project-adm │
+│             │  │ project-app │  │             │
 └─────────────┘  └─────────────┘  └─────────────┘
+
+       ▲                ▲                ▲
+       └────────────────┼────────────────┘
+                        │
+         ┌──────────────┴──────────────┐
+         │      Orchestrator           │
+         │  orchestrator.richi.solutions│
+         │                              │
+         │  packages/contracts/  ←────── Zod schemas, types,
+         │  .claude/             ←────── rules, skills, agents
+         └─────────────────────────────┘
 ```
 
 ### Shared Contracts
 
 ```typescript
 // Contracts are source of truth for ALL platforms
-// Location: Web repository → /src/contracts/v1/
+// Source: orchestrator → packages/contracts/
+// Distribution: sync workflow or Git Subtree into each repo
 
 // Contract flow:
-// 1. Define Zod schema in web repo
-// 2. Generate OpenAPI spec (npm run generate:openapi)
-// 3. Generate Dart types for Flutter (npm run generate:dart)
-// 4. Validate at runtime in Edge Functions
+// 1. Define Zod schema in orchestrator (packages/contracts/v1/)
+// 2. Sync to web repo → src/contracts/ (read-only)
+// 3. Sync to mobile repo → src/contracts/ (read-only)
+// 4. Same TypeScript types on web AND mobile — no code generation needed
+// 5. Validate at runtime in Edge Functions
 ```
+
+### What is shared vs platform-specific
+
+| Shared (from orchestrator) | Platform-specific |
+|---------------------------|-------------------|
+| Zod schemas & TypeScript types | React DOM components (web) |
+| Error envelope (`Result<T>`) | React Native components (mobile) |
+| API contract definitions | Routing (React Router vs Expo Router) |
+| Event schemas | Styling (Tailwind CSS vs NativeWind) |
+| `.claude/` rules & skills | Supabase client config |
 
 ### Architecture Per Platform
 
-| Platform | Architecture | Rationale |
-|----------|--------------|-----------|
-| **Web (React + Vite)** | Hexagonal (Ports & Adapters) | Full testability, backend swap |
-| **Mobile (Flutter)** | Clean Architecture (MVVM) | Native patterns, widget lifecycle |
-| **Backend (Edge)** | Layered + Result Type | Simplicity, stateless |
+| Platform | Architecture | Framework | Rationale |
+|----------|--------------|-----------|-----------|
+| **Web (React + Vite)** | Hexagonal (Ports & Adapters) | React + Vite + Tailwind | Full testability, backend swap |
+| **Mobile (React Native)** | Feature-first (mirroring web) | Expo + NativeWind + TanStack Query | Same patterns as web, max code familiarity |
+| **Backend (Edge)** | Layered + Result Type | Supabase Edge Functions | Simplicity, stateless |
 
 ### Web Architecture (Hexagonal)
 
@@ -907,17 +941,21 @@ src/
   adapters/        # Implementations
   domain/          # Pure business logic
   features/        # Feature modules
+  contracts/       # Synced from orchestrator (read-only)
 ```
 
-### Mobile Architecture (Clean/MVVM)
+### Mobile Architecture (Feature-first)
 
 ```
-lib/
-  data/            # Repositories, data sources
-  domain/          # Entities, use cases
-  presentation/    # ViewModels, Widgets
-  core/            # Shared utilities
+src/
+  app/             # Expo Router layouts
+  features/        # Feature modules (ui, hooks, service, model)
+  shared/          # Design system components
+  lib/             # Config, logger, Supabase client
+  contracts/       # Synced from orchestrator (read-only)
 ```
+
+Full reference: `.claude/ref/mobile/react-native-kb.md`
 
 ### Backend Architecture (Layered)
 
@@ -932,11 +970,12 @@ functions/
 
 ### Shared Principles (Cross-Platform)
 
-1. **Domain models are identical** across platforms
+1. **Contracts are TypeScript** — same Zod schemas, same `z.infer` types on web and mobile
 2. **Contracts validated** on every layer
-3. **Error Envelope Standard** consistent
+3. **Error Envelope Standard** consistent (`Result<T>` everywhere)
 4. **Event Schema** shared for analytics
 5. **API versioning** via URL path (`/v1/...`)
+6. **i18n key parity** — shared keys (auth, errors, common) use identical names
 
 ---
 

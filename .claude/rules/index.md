@@ -39,7 +39,8 @@ Use `@.claude/ref/<path>` syntax to load in Claude Code.
 
 | Task | File |
 |------|------|
-| Flutter / Mobile | `.claude/ref/mobile/flutter-kb.md` |
+| React Native / Mobile (default) | `.claude/ref/mobile/react-native-kb.md` |
+| Flutter / Mobile (deprecated) | `.claude/ref/mobile/flutter-kb.md` |
 
 ### Other
 

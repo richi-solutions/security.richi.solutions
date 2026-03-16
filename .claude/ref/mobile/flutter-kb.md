@@ -1,5 +1,13 @@
 ## Richi AI — Flutter Knowledge Base (Consumer‑Pro Compatible) v2.0
 
+**Status:** DEPRECATED (2026-03-16) — Superseded by `react-native-kb.md`
+
+> **Migration note:** React Native with Expo is now the default mobile recommendation
+> for Consumer-Pro projects. The React + TypeScript stack enables direct code sharing
+> (contracts, hooks, API client) between web and mobile. See `react-native-kb.md`.
+>
+> This document is retained for reference in case a project uses Flutter.
+
 **Codename:** One Codebase. Two Platforms. Contracts as Spine.
 
 **Version:** 2.0
