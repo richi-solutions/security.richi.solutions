@@ -1,8 +1,8 @@
-# 🌍 Richi AI — Consumer-Pro Knowledge Base v3.2
+# Richi Development Framework v4.0
 
 **"Lean Today. Limitless Tomorrow."**
 
-**Version 3.2** — React + Vite + Vercel + Supabase Cloud patterns for scalable consumer applications
+**Version 4.0** — React + Vite + Vercel + Supabase Cloud patterns for scalable applications
 
 ---
 
@@ -39,30 +39,30 @@
 
 ## 00 — Purpose
 
-**Consumer-Pro** defines the middle ground between **MVP speed** and **SaaS discipline**.
-It enables small teams or solo founders to build consumer apps that scale gracefully — lean at start, strong at scale.
+The **Richi Development Framework (RDF)** is a universal engineering standard for all Richi AI projects — consumer apps, SaaS products, and internal tools alike.
 
-> Simplify execution without weakening structure.
+It enables a solo founder with AI-powered development (Claude Code) to achieve enterprise-grade quality from day one, without a team.
+
+> Structure enables speed. AI eliminates the cost of discipline.
 
 ### Goals
 
-- Deliver features fast without architectural debt
-- Maintain upgrade compatibility with the **Richi AI SaaS KB**
+- Enterprise-grade architecture from the first commit
+- Progressive quality gates that scale with project maturity
 - Keep interfaces, contracts, and patterns stable — so the system can evolve without rewrites
 - Support **multi-platform development** (Web, Mobile, Backend)
 - Enable **internationalization** from day one
 
-### What's New in v3.2
+### What's New in v4.0
 
 | Change | Rationale |
 |--------|-----------|
-| **Vercel** as frontend hosting | Production-grade deployment with Preview/Production environments |
-| **Supabase Cloud** (self-provisioned) | Own projects at supabase.com instead of third-party managed |
-| **Lovable** demoted to optional prototyping | No longer the deployment/hosting platform |
-| `/migrate-from-lovable` skill | Automated migration path for Lovable prototypes |
-| Deployment via Vercel Git Integration | Auto-deploy on PR (Preview) and merge to main (Production) |
+| **Renamed** from "Consumer-Pro KB" to "Richi Development Framework" | Framework applies to all project types (consumer, SaaS, internal tools) |
+| **Quality Gate Matrix** replaces static requirements | Phase-dependent quality targets (Bootstrap → Foundation → Production) |
+| **Phase triggers** are structure-based, not DAU-based | AI-powered development enables enterprise quality without team scaling |
+| **Sections 08, 11, 12, 13 consolidated** | Reduced redundancy, single Quality Gate Matrix as reference |
 
-Previous additions (v2.0): Multi-Platform Architecture, i18n Standards, Documentation Standards, Edge Function Patterns, SEO Standards, Offline Mode Decision Tree.
+Previous: v3.2 added Vercel hosting, self-provisioned Supabase Cloud, Lovable demotion. v2.0 added Multi-Platform, i18n, SEO, Edge Functions.
 
 ---
 
@@ -79,7 +79,7 @@ Previous additions (v2.0): Multi-Platform Architecture, i18n Standards, Document
 - **English-Only Code Comments** – All code documentation in English for consistency
 - **Platform-Agnostic Contracts** – Schemas work across Web, Mobile, Backend
 
-> These invariants form the "spine" of your future SaaS evolution.
+> These invariants apply from the first commit. No exceptions, no phase gating.
 
 ---
 
@@ -392,10 +392,15 @@ WITH CHECK (auth.uid() = user_id);
 
 ---
 
-## 07 — Observability-Light
+## 07 — Observability
 
-**Now:** Sentry + structured logs (requestId, route, status, duration)
-**Later:** OTel tracing and Prometheus metrics behind same interface
+Observability requirements scale with project phase (see Section 13 — Quality Gate Matrix).
+
+| Phase | Requirements |
+|-------|-------------|
+| **Bootstrap** | Sentry + structured logs (requestId, route, status, duration) |
+| **Foundation** | + traceId in all logs, structured error tracking, request correlation |
+| **Production** | + metrics facade (Prometheus/OTel), alerts, dashboards |
 
 ### Logger Interface
 
@@ -450,21 +455,23 @@ export const metrics = {
 
 ---
 
-## 08 — Pragmatic Testing
+## 08 — Testing
 
-| Layer | Goal | Coverage |
-|-------|------|----------|
-| Unit | Core logic, pure functions | ≥ 60% |
-| Integration | Critical paths only | As needed |
-| E2E | 3 happy-paths (auth, main feature, secondary feature) | Required |
-| Contract | Schema validation via Zod tests | Always |
-| **Edge Function** | **API behavior tests** | **Critical paths** |
+Testing requirements scale with project phase (see Section 13 — Quality Gate Matrix).
+
+| Layer | Bootstrap | Foundation | Production |
+|-------|-----------|------------|------------|
+| **Unit** | Critical paths | ≥ 70% coverage | ≥ 90% coverage |
+| **Integration** | Manual | Critical paths | All external APIs |
+| **E2E** | 3 happy paths | + error paths | Full user journeys + a11y |
+| **Contract** | Zod on APIs | + edge cases | + backward compatibility |
+| **Edge Function** | Manual testing | HTTP call tests | Automated in CI |
 
 ### Testing Principles
 
 - Test outcomes, not internals
 - Mock adapters, never the domain
-- CI runs smoke tests on each PR
+- CI runs tests on each PR
 - Edge functions tested via HTTP calls
 
 ### Test Structure
@@ -551,20 +558,20 @@ creates noise (failing workflows) without value. Follow this phasing:
 
 | Component | Phase | When to add |
 |-----------|-------|-------------|
-| **CI (lint, typecheck, build, test)** | Phase 1 (Launch) | Always — from first commit |
-| **Commitlint** | Phase 1 (Launch) | Always — enforces Conventional Commits |
-| **Security scanning (gitleaks, semgrep, osv)** | Phase 1 (Launch) | Always — distributed via dotclaude subtree |
-| **CodeQL** | Phase 3 (1k+ DAU) | Requires GitHub Advanced Security for private repos |
-| **Lighthouse CI** | Phase 3 (1k+ DAU) | When performance budgets matter |
-| **Deploy workflow** | Phase 1 (Launch) | Vercel Git Integration auto-deploys on push to `main` — no custom workflow needed |
+| **CI (lint, typecheck, build, test)** | Bootstrap | Always — from first commit |
+| **Commitlint** | Bootstrap | Always — enforces Conventional Commits |
+| **Security scanning (gitleaks, semgrep, osv)** | Bootstrap | Always — distributed via dotclaude subtree |
+| **CodeQL** | Production | Requires GitHub Advanced Security for private repos |
+| **Lighthouse CI** | Production | When performance budgets are enforced |
+| **Deploy workflow** | Bootstrap | Vercel Git Integration auto-deploys on push to `main` — no custom workflow needed |
 
-**IMPORTANT:** Do NOT add Phase 3 workflows to new projects. They will fail
-and provide no value at early stages. The CI workflow template above is
-sufficient for Phase 1. Security scanning is distributed automatically via
+**IMPORTANT:** Do NOT add Production-phase workflows to new projects. They will fail
+and provide no value during Bootstrap. The CI workflow template above is
+sufficient for Bootstrap. Security scanning is distributed automatically via
 the dotclaude subtree (`/update-dotclaude`).
 
 ```yaml
-# Phase 3 additions (only when 1k+ DAU is reached):
+# Production phase additions:
 #
 # .github/workflows/lighthouse-ci.yml
 # lighthouse:
@@ -674,54 +681,48 @@ Store schemas in `/events/v1/*.json`.
 
 ---
 
-## 11 — Migration Playbook (→ SaaS Readiness)
+## 11 — Scaling Playbook
 
-### Triggers
+### Phase Transitions
 
-- ≥ 1k DAU or ≥ 10 req/s p95
-- p95 latency > 750 ms for 3 days
-- 2 shared packages or 2 app surfaces
-- External API error rate > 2%
+Phases are structure-driven, not DAU-driven. Move to the next phase when the previous phase's Quality Gates (Section 13) are fully met.
 
-### Migration Steps
+| Transition | Trigger | Key Actions |
+|------------|---------|-------------|
+| Bootstrap → Foundation | App is functional, core features work | Structured logging, error envelope, E2E tests, ports & adapters |
+| Foundation → Production | Quality Gates met, architecture solid | Metrics + alerts, CodeQL, circuit breakers, full test coverage, runbooks |
+
+### Production-Phase Infrastructure Upgrades
+
+When scale demands it (p95 > 750ms, error rate > 2%, multiple app surfaces):
 
 1. Replace logger/metrics with OTel/Prom implementations
-2. Swap RepoPort adapter to Postgres/Redis
-3. Add QueuePort → SQS/Kafka
+2. Add Redis cache layer behind CachePort
+3. Add QueuePort → SQS/Kafka for async work
 4. Add circuit breakers + retries in adapters
-5. Move to monorepo if new app surfaces appear
-6. Introduce centralized feature-flag provider
-7. Expand CI/CD to full pipeline (canary + blue/green)
+5. Introduce centralized feature-flag provider
+6. Expand CI/CD to full pipeline (canary + blue/green)
 
-### Migration Checklist
-
-| Phase | Trigger | Actions |
-|-------|---------|---------|
-| **Consumer** | 0–500 DAU | Current architecture |
-| **Growth** | 500–1k DAU | Add circuit breakers, monitoring |
-| **Scale** | 1k+ DAU | Redis cache, queue system |
-| **Enterprise** | 10k+ DAU | Full SaaS KB migration |
-
-> The Consumer-Pro KB is the seed; the SaaS KB is the tree.
+> Phase transitions are earned by completing Quality Gates, not by waiting for users.
 
 ---
 
-## 12 — Delta Map (Consumer-Pro ↔ SaaS)
+## 12 — Phase Capability Map
 
-| Capability | Consumer-Pro | SaaS-Ready | Shared Boundary |
-|------------|--------------|------------|-----------------|
-| Contracts | JSON Schema + DTOs | Same + CI validation | ✅ Schema |
-| Domain | Pure, framework-free | Same | ✅ Domain |
-| Data | HTTP/localDB | Postgres + Redis | ✅ RepoPort |
-| Observability | Sentry + Logs | OTel + Metrics + Tracing | ✅ Logger/Metrics |
-| Queue/Jobs | None / in-process | SQS/Kafka + DLQ | ✅ QueuePort |
-| Flags | Env/in-app | LaunchDarkly / GrowthBook | ✅ Flags API |
-| CI/CD | Lint + Smoke | Full pipeline + Canary | ✅ Pipeline spec |
-| Docs | README + 1 ADR | ADR + Runbooks | ✅ Format |
-| **Multi-Platform** | Web + Mobile (React Native) + Edge | Web + Mobile + Edge + Workers | ✅ Contracts |
-| **i18n** | Basic setup | Full localization pipeline | ✅ Key structure |
+| Capability | Bootstrap | Foundation | Production |
+|------------|-----------|------------|------------|
+| Contracts | Zod schemas on APIs | + CI validation | + backward compat checks |
+| Domain | Pure, framework-free | Same | Same |
+| Data | Supabase direct | Ports & Adapters | + Redis cache layer |
+| Observability | Sentry + logs | + structured logs + traceId | + OTel + metrics + alerts |
+| Queue/Jobs | None | None | QueuePort → SQS/Kafka |
+| Flags | Env vars | Feature flags facade | Centralized provider |
+| CI/CD | Lint + typecheck + test | + E2E + security scanning | + Lighthouse CI + CodeQL |
+| Docs | README | + ADRs | + runbooks + API docs |
+| Multi-Platform | Web | + Mobile (React Native) | + Workers |
+| i18n | Basic setup | Full key structure | Full localization pipeline |
 
-> Migration = swapping implementations, not rewriting code.
+> Scaling = swapping implementations behind stable ports, not rewriting code.
 
 ---
 
