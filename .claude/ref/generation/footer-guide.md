@@ -110,7 +110,7 @@ Heading + vertical link list:
 | FAQ     | `/<lang>/faq`    | `footer.faq`        |
 | Contact | `/<lang>/contact`| `footer.contact`    |
 
-> **Standard contact email:** `contact@richi.solutions` — used in all footers and legal pages. See `ref/generation/email-implementation.md` for the full email address policy.
+> **Standard contact email:** `info@richi.solutions` — used in all footers and legal pages. See `ref/generation/email-implementation.md` for the full email address policy.
 
 #### Optional Links (project-specific)
 

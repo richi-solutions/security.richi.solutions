@@ -11,8 +11,8 @@
 | **Email Provider** | [Resend](https://resend.com) |
 | **Verified Domain** | `contact.richi.solutions` (SPF + DKIM via IONOS DNS) |
 | **API Key Secret** | `RESEND_API_KEY` (backend secret, never in client code) |
-| **Public Contact Address** | `contact@richi.solutions` |
-| **Internal Address (Logins only)** | `info@richi.solutions` |
+| **Public Contact Address** | `info@richi.solutions` |
+| **Internal Address (Logins only)** | `info@richi.solutions` (same address — single public-facing email) |
 | **API Endpoint** | `https://api.resend.com/emails` |
 | **Logo Storage** | Supabase Storage bucket `email-assets` (public) |
 
@@ -20,10 +20,9 @@
 
 | Address | Purpose | Visibility |
 |---|---|---|
-| `contact@richi.solutions` | Public contact address — footers, legal pages, support emails, contact form recipient | Public |
-| `info@richi.solutions` | Internal only — service logins, account registrations | Internal |
+| `info@richi.solutions` | Public contact address — footers, legal pages, support emails, contact form recipient, service logins | Public |
 
-**Rule:** All user-facing references (footer, imprint, privacy policy, terms, email templates, support links) MUST use `contact@richi.solutions`. The address `info@richi.solutions` is reserved for internal service logins and must NOT appear in any public-facing context.
+**Rule:** All user-facing references (footer, imprint, privacy policy, terms, email templates, support links) MUST use `info@richi.solutions`. This is the only active mailbox on `richi.solutions` (Google Workspace). The address `contact@richi.solutions` has no mailbox and MUST NOT be used as a recipient.
 
 ### 1.1 Resend Setup
 
@@ -92,7 +91,7 @@ export interface AppBrand {
   primaryColor: string;  // Hex color, e.g. "#6366F1"
   accentColor: string;   // Hex color for secondary elements
   footerText: string;    // Footer line, e.g. "MemoBot — Ein Produkt von Richi"
-  supportEmail: string;  // Support contact, e.g. "contact@richi.solutions"
+  supportEmail: string;  // Support contact, e.g. "info@richi.solutions"
   website: string;       // Product URL
 }
 ```
@@ -107,7 +106,7 @@ export const MEMOBOT_BRAND: AppBrand = {
   primaryColor: "#6366F1",
   accentColor: "#818CF8",
   footerText: "MemoBot — Ein Produkt von Richi",
-  supportEmail: "contact@richi.solutions",
+  supportEmail: "info@richi.solutions",
   website: "https://memobot.richi.solutions",
 };
 ```
@@ -203,7 +202,7 @@ html: `<p>${escapeHtml(userInput)}</p>`
 ### 4.1 `send-contact-email` (public, no JWT)
 
 **Purpose:** Processes the website contact form. Sends two emails:
-1. Internal notification to `contact@richi.solutions`
+1. Internal notification to `info@richi.solutions`
 2. Confirmation to the sender
 
 **Request:**
@@ -231,7 +230,7 @@ serve(async (req) => {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
     body: JSON.stringify({
       from: `${brand.name} Contact <contact.{{PROJECT_NAME}}@contact.richi.solutions>`,
-      to: ["contact@richi.solutions"],
+      to: ["info@richi.solutions"],
       subject: `Neue Kontaktanfrage von ${name}`,
       reply_to: email,
       html: buildEmailHtml(brand, internalBody, { preheader: `Nachricht von ${name}` }),
@@ -357,7 +356,7 @@ Automatically included by `buildEmailHtml()`:
 ```html
 <p style="font-size:12px;color:#9CA3AF;">
   {{PROJECT_DISPLAY}} — Ein Produkt von Richi<br>
-  <a href="mailto:contact@richi.solutions">contact@richi.solutions</a>
+  <a href="mailto:info@richi.solutions">info@richi.solutions</a>
 </p>
 <p style="font-size:11px;color:#D1D5DB;">
   © 2025 {{PROJECT_DISPLAY}}
